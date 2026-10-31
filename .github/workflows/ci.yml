@@ -1,0 +1,16 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install system deps for WeasyPrint
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+      - run: python -m tests.corpus.generate_corpus
+      - run: pytest tests/ -v -k "not large_rows"
+      - run: python scripts/fetch_eval_datasets.py
+      - run: python scripts/eval_type_detection.py

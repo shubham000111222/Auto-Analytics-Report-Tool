@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Analytics Report -- {{ filename }}</title>
+<style>
+body{font-family:-apple-system,Arial,sans-serif;max-width:1000px;margin:auto;padding:2rem;color:#1a1a1a}
+h1{border-bottom:2px solid #333;padding-bottom:.5rem}
+h2{margin-top:2.5rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}
+.meta{color:#555}
+.chart-block{margin-bottom:2.5rem}
+.takeaway{color:#555;font-style:italic;margin-top:.25rem}
+.narrative{background:#f7f7f7;padding:1rem 1.5rem;border-radius:8px;white-space:pre-wrap}
+.caveats{background:#fff8e6;border:1px solid #f0d78c;padding:1rem 1.5rem;border-radius:8px}
+.caveats li{margin-bottom:.4rem}
+</style></head>
+<body>
+
+<h1>Analytics Report</h1>
+<p class="meta"><strong>File:</strong> {{ filename }} &nbsp;|&nbsp; <strong>Generated:</strong> {{ generated_at }}</p>
+<p class="meta"><strong>Rows:</strong> {{ profile.n_rows }} &nbsp;
+   <strong>Columns:</strong> {{ profile.n_cols }} &nbsp;
+   <strong>Duplicate rows:</strong> {{ profile.duplicate_rows }}</p>
+
+{% if narrative %}
+<h2>Executive Summary</h2>
+<div class="narrative">{{ narrative }}</div>
+{% endif %}
+
+{% for section in sections %}
+<h2>{{ loop.index + 2 }}. {{ section.title }}</h2>
+{% for chart in section.charts %}
+<div class="chart-block">
+  <h3>{{ chart.title }}</h3>
+  {{ chart.html | safe }}
+  <p class="takeaway">{{ chart.takeaway }}</p>
+</div>
+{% endfor %}
+{% endfor %}
+
+{% if caveats %}
+<h2>Recommendations &amp; Caveats</h2>
+<ul class="caveats">
+{% for c in caveats %}<li>{{ c }}</li>{% endfor %}
+</ul>
+{% endif %}
+
+</body></html>

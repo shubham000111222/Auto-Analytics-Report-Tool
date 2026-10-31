@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  api:
+    build: { context: ., dockerfile: Dockerfile.api }
+    ports: ["8000:8000"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/reports
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      UPLOAD_DIR: /data/uploads
+      RESULT_DIR: /data/results
+    volumes: ["report_data:/data"]
+    depends_on: [db]
+
+  cleanup:
+    build: { context: ., dockerfile: Dockerfile.api }
+    command: ["python", "-m", "api.cleanup"]
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/reports
+      UPLOAD_DIR: /data/uploads
+      RESULT_DIR: /data/results
+    volumes: ["report_data:/data"]
+    depends_on: [db]
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reports
+    volumes: ["pg_data:/var/lib/postgresql/data"]
+
+  streamlit:
+    build: { context: ., dockerfile: Dockerfile.streamlit }
+    ports: ["8501:8501"]
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+volumes:
+  report_data:
+  pg_data:
